@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Manager</title>
+    <script>
+        // Create array to store tasks and deadlines
+        let taskList = [];
+        
+        // Retrieve tasks from local storage
+        function getTasks() {
+            if(localStorage.getItem('taskList')) {
+                taskList = JSON.parse(localStorage.getItem('taskList'));
+            }
+        }
+        
+        // Add task and deadline to array
+        function addTask() {
+            const task = document.getElementById('task').value;
+            const deadline = document.getElementById('deadline').value;
+            taskList.push({task, deadline});
+            updateList();
+        }
+        
+        // Update list of tasks
+        function updateList() {
+            localStorage.setItem('taskList', JSON.stringify(taskList));
+            const listElem = document.getElementById('list');
+            while(listElem.firstChild){
+                listElem.removeChild(listElem.firstChild);
+            }
+            taskList.forEach(function(task, index) {
+                const taskElem = document.createElement('div');
+                const taskText = document.createElement('span');
+                taskText.innerHTML = `${task.task} - ${task.deadline}`;
+                const checkBtn = document.createElement('button');
+                checkBtn.innerHTML = 'Complete';
+                checkBtn.addEventListener('click', function() {
+                    checkTask(index);
+                });
+                const editBtn = document.createElement('button');
+                editBtn.innerHTML = 'Edit';
+                editBtn.addEventListener('click', function() {
+                    editTask(index);
+                });
+                const deleteBtn = document.createElement('button');
+                deleteBtn.innerHTML = 'Delete';
+                deleteBtn.addEventListener('click', function() {
+                    deleteTask(index);
+                });
+                taskElem.appendChild(taskText);
+                taskElem.appendChild(checkBtn);
+                taskElem.appendChild(editBtn);
+                taskElem.appendChild(deleteBtn);
+                listElem.appendChild(taskElem);
+            });
+        }
+        
+        // Mark task as complete
+        function checkTask(index) {
+            taskList[index].status = 'Complete';
+            updateList();
+        }
+        
+        // Edit task
+        function editTask(index) {
+            const task = prompt('Edit task:', taskList[index].task);
+            const deadline = prompt('Edit deadline:', taskList[index].deadline);
+            taskList[index].task = task;
+            taskList[index].deadline = deadline;
+            updateList();
+        }
+        
+        // Delete task
+        function deleteTask(index) {
+            taskList.splice(index, 1);
+            updateList();
+        }
+        
+        // Initialize
+        window.onload = function() {
+            getTasks();
+            updateList();
+        }
+    </script>
+</head>
+<body>
+    <h1>Task Manager</h1>
+    <form action="" onsubmit="addTask(); return false;">
+        <input type="text" placeholder="Task" id="task" required>
+        <input type="text" placeholder="Deadline" id="deadline" required>
+        <input type="submit" value="Add Task">
+    </form>
+    <div id="list"></div>
+</body>
+</html>
